@@ -1,3 +1,5 @@
+"use strict"
+
 const WebSocket = require('ws');
 //const wsurl = 'ws://localhost:9090/linproxy';
 const wsurl = 'wss://www.llwant.com/linproxy';
@@ -8,21 +10,21 @@ const wsurl = 'wss://www.llwant.com/linproxy';
 */
 const maxWS = 5;
 
-var wsHub = [];
+let wsHub = [];
 
 function allocWS() {
-	var le = wsHub.length;
+	let le = wsHub.length;
 	if (le < 1) {
 		return undefined;
 	}
 	
-	var i = Math.floor(Math.random() * (le));
+	let i = Math.floor(Math.random() * (le));
 	return wsHub[i];
 }
 
 function deleteWS(ws) {
-	var le = wsHub.length;
-	for(var i = 0; i < le; i++) {
+	let le = wsHub.length;
+	for(let i = 0; i < le; i++) {
 		if (wsHub[i] === ws) {
 			wsHub = wsHub.slice(i,1);
 			return;
@@ -31,21 +33,21 @@ function deleteWS(ws) {
 }
 
 function allocKey(ws) {
-	var tunnelsHub = ws.tunnelsHub;
-	var index = ws.tIndex;
+	let tunnelsHub = ws.tunnelsHub;
+	let index = ws.tIndex;
 	if (index === undefined) {
 		index = 0;
 		ws.tIndex = index;
 	}
 	
-	for(var i = index; i < 10000; i++) {
+	for(let i = index; i < 10000; i++) {
 		if (tunnelsHub[i] === undefined) {
 			ws.tIndex = i + 1;
 			return i;
 		}
 	}
 	
-	for (var i = 0; i < index; i++) {
+	for (let i = 0; i < index; i++) {
 		if (tunnelsHub[i] === undefined) {
 			ws.tIndex = i + 1;
 			return i;
@@ -56,7 +58,7 @@ function allocKey(ws) {
 }
 
 function closeAllMyTunnels(ws) {
-	var tunnelsHub = ws.tunnelsHub;
+	let tunnelsHub = ws.tunnelsHub;
 	Object.keys(tunnelsHub).forEach(function (item) {
 		t = tunnelsHub[item];
 		t.onClose();
@@ -71,11 +73,11 @@ function processWebsocketMessage(ws, buf) {
 	// 后面是数据
 
 	// 获取code
-	var code = buf.readInt8(0);
+	let code = buf.readInt8(0);
 	// 获取key
-	var key = buf.readInt16LE(1);
+	let key = buf.readInt16LE(1);
 	
-	var t = ws.tunnelsHub[key]
+	let t = ws.tunnelsHub[key]
 	if (t === undefined) {
 		console.log('can not found tunnel for key:', key);
 		return;
@@ -94,18 +96,18 @@ function processWebsocketMessage(ws, buf) {
 }
 
 function tunnel(ws, key) {
-	var self = this;
+	let self = this;
 	
 	self.send = function(data) {
 		if (ws.readyState === WebSocket.OPEN) {
-			var message = self.formatMsg(2, data);
+			let message = self.formatMsg(2, data);
 			ws.send(message);
 		}
 	}
 	
 	self.close = function() {
 		if (ws.readyState === WebSocket.OPEN) {
-			var message = self.formatMsg(1);
+			let message = self.formatMsg(1);
 			ws.send(message);
 		}
 
@@ -114,7 +116,7 @@ function tunnel(ws, key) {
 
 	self.open = function(initData) {
 		if (ws.readyState === WebSocket.OPEN) {
-			var message = self.formatMsg(0, initData);
+			let message = self.formatMsg(0, initData);
 			ws.send(message);
 		}
 		
@@ -125,7 +127,7 @@ function tunnel(ws, key) {
 		// 第一个字节命令字
 		// 第二，第三个字节是key
 		// 后面是数据
-		var size = 3;
+		let size = 3;
 		if (data !== undefined) {
 			size = size + data.length;
 		}
@@ -144,7 +146,7 @@ function tunnel(ws, key) {
 	return self;
 }
 
-var wsCountInNew = 0;
+let wsCountInNew = 0;
 function newWebsocket() {
 	if ((wsCountInNew  + wsHub.length )>= maxWS) {
 		return;
@@ -177,22 +179,22 @@ function newWebsocket() {
 }
 
 tunnel.create = function(initData) {
-	var ws = allocWS();
+	let ws = allocWS();
 	if (ws === undefined) {
 		newWebsocket();
 		return null;
 	}
 
-	var key = allocKey(ws);
+	let key = allocKey(ws);
 
-	var t = new tunnel(ws, key);
+	let t = new tunnel(ws, key);
 	t.open(initData);
 	
 	return t;
 }
 
 tunnel.setupWS = function() {
-	for(var i = 0; i < maxWS; i++) {
+	for(let i = 0; i < maxWS; i++) {
 		newWebsocket();
 	}
 	

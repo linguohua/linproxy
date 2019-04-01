@@ -1,9 +1,11 @@
+"use strict"
+
 const tunnels = require('./tunnels.js')
 
 function proxysession(info, sock) {
 	this.info = info;
 	this.sock = sock;
-	var self = this;
+	let self = this;
 
 	this.proxy = function() {
 		const tunnel = tunnels.create(Buffer.from(JSON.stringify(self.info)));
@@ -42,7 +44,7 @@ function proxysession(info, sock) {
 }
 
 proxysession.create = function (info, sock) {
-	var ps = new proxysession(info, sock);
+	let ps = new proxysession(info, sock);
 	ps.proxy();
 };
 

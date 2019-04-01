@@ -1,3 +1,5 @@
+"use strict"
+
 const http = require('http');
 const WebSocket = require('ws');
 const url = require('url')
@@ -6,7 +8,7 @@ const wsserver = new WebSocket.Server({ noServer: true });
 const net = require('net');
 
 function closeAllMyTunnels(ws) {
-	var tunnelsHub = ws.tunnelsHub;
+	let tunnelsHub = ws.tunnelsHub;
 	Object.keys(tunnelsHub).forEach(function (item) {
 		t = tunnelsHub[item];
 		t.onClose();
@@ -17,7 +19,7 @@ function closeAllMyTunnels(ws) {
 
 function senddata(t) {
 	if (t.fbuffer !== undefined) {
-		var buffer = t.fbuffer;
+		let buffer = t.fbuffer;
 		delete(t.fbuffer);
 		t.fsock.write(buffer);
 	}
@@ -25,7 +27,7 @@ function senddata(t) {
 
 function closeTunnel(ws, t, key) {
 	if (ws.readyState === WebSocket.OPEN) {
-		var message = t.formatMsg(1);
+		let message = t.formatMsg(1);
 		ws.send(message);
 	}
 	
@@ -33,14 +35,14 @@ function closeTunnel(ws, t, key) {
 }
 
 function tunnel(ws, key, initData) {
-	var self = this;
+	let self = this;
 
-	var info = JSON.parse(initData);
+	let info = JSON.parse(initData);
 
-	var dstAddr = info.dstAddr;
-	var dstPort = info.dstPort;
+	let dstAddr = info.dstAddr;
+	let dstPort = info.dstPort;
 	
-	var sock = new net.Socket();
+	let sock = new net.Socket();
 
 	sock.connect(dstPort, dstAddr, function() {
 		self.fsock = sock;
@@ -49,7 +51,7 @@ function tunnel(ws, key, initData) {
 
 	sock.on('data', function(data) {
 		if (ws.readyState === WebSocket.OPEN) {
-			var message = self.formatMsg(2, data);
+			let message = self.formatMsg(2, data);
 			ws.send(message);
 		}
 	});
@@ -70,7 +72,7 @@ function tunnel(ws, key, initData) {
 			self.fbuffer = Buffer.concat(self.fbuffer, buf);
 		}
 
-		var fsock = self.fsock;
+		let fsock = self.fsock;
 		if (fsock !== undefined) {
 			senddata(self);
 		}		
@@ -84,7 +86,7 @@ function tunnel(ws, key, initData) {
 		// 第一个字节命令字
 		// 第二，第三个字节是key
 		// 后面是数据
-		var size = 3;
+		let size = 3;
 		if (data !== undefined) {
 			size = size + data.length;
 		}
@@ -102,7 +104,7 @@ function tunnel(ws, key, initData) {
 }
 
 function newTunnel(ws, key, initData) {
-	var t = new tunnel(ws, key, initData);
+	let t = new tunnel(ws, key, initData);
 	
 	ws.tunnelsHub[key] = t;
 }
@@ -113,11 +115,11 @@ function processWebsocketMessage(ws, buf) {
 	// 后面是数据
 
 	// 获取code
-	var code = buf.readInt8(0);
+	let code = buf.readInt8(0);
 	// 获取key
-	var key = buf.readInt16LE(1);
+	let key = buf.readInt16LE(1);
 	
-	var t = ws.tunnelsHub[key]
+	let t = ws.tunnelsHub[key]
 
 	if (code == 1) {
 		if (t === undefined) {
@@ -155,7 +157,7 @@ wsserver.on('connection', function connection(ws) {
 		processWebsocketMessage(ws, message);
 	});
   
-	var to = setInterval(function(){
+	let to = setInterval(function(){
 		if (ws.readyState === WebSocket.OPEN) {
 			ws.ping();
 		} else {

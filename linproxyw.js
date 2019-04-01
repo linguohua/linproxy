@@ -1,16 +1,18 @@
-var socks = require('socksv5');
-var proxysession = require('./proxysessionw');
+"use strict"
+
+let socks = require('socksv5');
+let proxysession = require('./proxysessionw');
 const tunnels = require('./tunnels.js')
 
 tunnels.setupWS();
 
-var srv = socks.createServer(function(info, accept, deny) {
-	var srcAddr = info.srcAddr;
-	var srcPort = info.srcPort;
-	var dstAddr = info.dstAddr;
-	var dstPort = info.dstPort;
+let srv = socks.createServer(function(info, accept, deny) {
+	let srcAddr = info.srcAddr;
+	let srcPort = info.srcPort;
+	let dstAddr = info.dstAddr;
+	let dstPort = info.dstPort;
 	console.log('accept sock, srcAddr:', srcAddr, ',srcPort:', srcPort, ',dstAddr:', dstAddr, ',dstPort:', dstPort);
-	var sock = accept(true);
+	let sock = accept(true);
 	proxysession.create(info, sock);
 });
 
