@@ -1,8 +1,8 @@
 "use strict"
 
 let socks = require('socksv5');
-let proxysession = require('./proxysessionw');
-const tunnels = require('./tunnels.js')
+let proxysession = require('./proxysession');
+const tunnels = require('./tunnels')
 
 tunnels.setupWS();
 
