@@ -60,7 +60,7 @@ function allocKey(ws) {
 function closeAllMyTunnels(ws) {
 	let tunnelsHub = ws.tunnelsHub;
 	Object.keys(tunnelsHub).forEach(function (item) {
-		t = tunnelsHub[item];
+		let t = tunnelsHub[item];
 		t.onClose();
 	});
 
