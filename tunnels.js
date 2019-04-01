@@ -6,6 +6,7 @@ const wsurl = 'wss://www.llwant.com/linproxy';
 	close:1
 	data:2
 */
+const maxWS = 5;
 
 var wsHub = [];
 
@@ -145,10 +146,10 @@ function tunnel(ws, key) {
 
 var wsCountInNew = 0;
 function newWebsocket() {
-	if (wsCountInNew > 10) {
+	if ((wsCountInNew  + wsHub.length )>= maxWS) {
 		return;
 	}
-	
+
 	wsCountInNew++;
 	const ws = new WebSocket(wsurl);
 	ws.tunnelsHub = {};
@@ -191,15 +192,15 @@ tunnel.create = function(initData) {
 }
 
 tunnel.setupWS = function() {
-	for(var i = 0; i < 5; i++) {
+	for(var i = 0; i < maxWS; i++) {
 		newWebsocket();
 	}
 	
 	setInterval( function(){
-		if (wsHub.length < 5) {
+		if (wsHub.length < maxWS) {
 			newWebsocket();
 		}
-	}, 30);
+	}, 30*1000);
 };
 
 module.exports = tunnel;

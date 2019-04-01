@@ -155,11 +155,22 @@ wsserver.on('connection', function connection(ws) {
 		processWebsocketMessage(ws, message);
 	});
   
+	var to = setInterval(function(){
+		if (ws.readyState === WebSocket.OPEN) {
+			var message = self.formatMsg(2, data);
+			ws.ping();
+		} else {
+			clearTimeout(to);
+		}
+	}, 30*1000);
+	
 	ws.on('error', function() {
+		clearTimeout(to);
 		closeAllMyTunnels(ws);
 	});
 
 	ws.on('close', function() {
+		clearTimeout(to);
 		closeAllMyTunnels(ws);
 	});
 });
