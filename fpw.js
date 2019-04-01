@@ -157,7 +157,6 @@ wsserver.on('connection', function connection(ws) {
   
 	var to = setInterval(function(){
 		if (ws.readyState === WebSocket.OPEN) {
-			var message = self.formatMsg(2, data);
 			ws.ping();
 		} else {
 			clearTimeout(to);
