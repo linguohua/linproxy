@@ -8,6 +8,10 @@ function proxysession(info, sock) {
 	this.proxy = function() {
 		const tunnel = tunnels.create(Buffer.from(JSON.stringify(self.info)));
 		const sock = self.sock;
+		if (tunnel == null) {
+			sock.end();
+			return;
+		}
 
 		tunnel.onMessage = function incoming(data) {
 			sock.write(data);

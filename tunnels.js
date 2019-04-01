@@ -1,6 +1,6 @@
 const WebSocket = require('ws');
-const wsurl = 'ws://localhost:9090/linproxy';
-
+//const wsurl = 'ws://localhost:9090/linproxy';
+const wsurl = 'wss://www.llwant.com/linproxy';
 /*
 	open:0
 	close:1
@@ -8,10 +8,25 @@ const wsurl = 'ws://localhost:9090/linproxy';
 */
 
 var wsHub = [];
-var wsHubIndex = 0;
 
 function allocWS() {
-	return wsHub[0];
+	var le = wsHub.length;
+	if (le < 1) {
+		return undefined;
+	}
+	
+	var i = Math.floor(Math.random() * (le));
+	return wsHub[i];
+}
+
+function deleteWS(ws) {
+	var le = wsHub.length;
+	for(var i = 0; i < le; i++) {
+		if (wsHub[i] === ws) {
+			wsHub = wsHub.slice(i,1);
+			return;
+		}
+	}
 }
 
 function allocKey(ws) {
@@ -128,10 +143,47 @@ function tunnel(ws, key) {
 	return self;
 }
 
+var wsCountInNew = 0;
+function newWebsocket() {
+	if (wsCountInNew > 10) {
+		return;
+	}
+	
+	wsCountInNew++;
+	const ws = new WebSocket(wsurl);
+	ws.tunnelsHub = {};
+
+	ws.on('open', function open() {
+		wsCountInNew--;
+		console.log('ws connect ok');
+		wsHub.push(ws);
+		ws.on('message', function incoming(data) {
+			processWebsocketMessage(ws, data);
+		});
+	});
+
+	ws.on('error', function() {
+		wsCountInNew--;
+		deleteWS(ws);
+		closeAllMyTunnels(ws);
+	});
+
+	ws.on('close', function() {
+		wsCountInNew--;
+		deleteWS(ws);
+		closeAllMyTunnels(ws);
+	});
+}
+
 tunnel.create = function(initData) {
 	var ws = allocWS();
+	if (ws === undefined) {
+		newWebsocket();
+		return null;
+	}
+
 	var key = allocKey(ws);
-	
+
 	var t = new tunnel(ws, key);
 	t.open(initData);
 	
@@ -139,24 +191,15 @@ tunnel.create = function(initData) {
 }
 
 tunnel.setupWS = function() {
-	const ws = new WebSocket(wsurl);
-	ws.tunnelsHub = {};
+	for(var i = 0; i < 5; i++) {
+		newWebsocket();
+	}
 	
-	ws.on('open', function open() {
-		console.log('ws connect ok');
-		wsHub.push(ws);
-		ws.on('message', function incoming(data) {
-			processWebsocketMessage(ws, data);
-		});
-
-		ws.on('error', function() {
-			closeAllMyTunnels(ws);
-		});
-		
-		ws.on('close', function() {
-			closeAllMyTunnels(ws);
-		});
-	});
-}
+	setInterval( function(){
+		if (wsHub.length < 5) {
+			newWebsocket();
+		}
+	}, 30);
+};
 
 module.exports = tunnel;
