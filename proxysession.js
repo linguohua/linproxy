@@ -20,13 +20,21 @@ function proxysession(info, sock) {
 		};
 
 		tunnel.onError = function() {
-			sock.end();
+			sock.close();
 		};
-		
+
 		tunnel.onClose = function() {
-			sock.end();
+			sock.close();
 		};
 		
+		tunnel.onEnd = function() {
+			sock.end();
+		}
+
+		sock.on('end', function() {
+			tunnel.end();
+		});
+
 		sock.on('close', function() {
 			tunnel.close();
 		});

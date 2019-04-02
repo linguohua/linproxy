@@ -7,6 +7,7 @@ const wsurl = 'wss://www.llwant.com/linproxy';
 	open:0
 	close:1
 	data:2
+	end:3
 */
 const maxWS = 5;
 
@@ -90,9 +91,11 @@ function processWebsocketMessage(ws, buf) {
 	} else if (code == 2) {
 		// 如果是数据命令字
 		t.onMessage(buf.slice(3));
+	} else if (code == 3) {
+		t.onEnd();
 	} else {
 		console.log('unsupport code:', code);
-	}	
+	}
 }
 
 function tunnel(ws, key) {
@@ -112,6 +115,13 @@ function tunnel(ws, key) {
 		}
 
 		delete(ws.tunnelsHub[key])
+	}
+
+	self.end = function() {
+		if (ws.readyState === WebSocket.OPEN) {
+			let message = self.formatMsg(3);
+			ws.send(message);
+		}
 	}
 
 	self.open = function(initData) {

@@ -64,6 +64,13 @@ function tunnel(ws, key, initData) {
 		closeTunnel(ws, self,  key);
 	});
 
+	sock.on('end', function() {
+		if (ws.readyState === WebSocket.OPEN) {
+			let message = self.formatMsg(3);
+			ws.send(message);
+		}
+	});
+
 	self.onMessage = function(data) {
 		const buf = data;
 		if (self.fbuffer === undefined) {
@@ -79,6 +86,10 @@ function tunnel(ws, key, initData) {
 	};
 
 	self.onClose = function() {
+		sock.close();
+	};
+
+	self.onEnd = function() {
 		sock.end();
 	};
 
@@ -144,6 +155,13 @@ function processWebsocketMessage(ws, buf) {
 		}
 
 		newTunnel(ws, key, buf.slice(3));
+	} else if (code == 3) {
+		if (t === undefined) {
+			console.log('can not found tunnel to send for key:', key);
+			return;
+		}
+
+		t.onEnd();
 	} else {
 		console.log('unsupport code:', code);
 	}
