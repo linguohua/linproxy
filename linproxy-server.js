@@ -69,7 +69,7 @@ function tunnel(ws, key, initData) {
 		if (self.fbuffer === undefined) {
 			self.fbuffer = buf;
 		} else {
-			self.fbuffer = Buffer.concat(self.fbuffer, buf);
+			self.fbuffer = Buffer.concat([self.fbuffer, buf]);
 		}
 
 		let fsock = self.fsock;
@@ -166,11 +166,14 @@ wsserver.on('connection', function connection(ws) {
 	}, 30*1000);
 	
 	ws.on('error', function() {
-		clearTimeout(to);
-		closeAllMyTunnels(ws);
+		console.log('ws error');
+		//--error之后会触发close
+		// clearTimeout(to);
+		// closeAllMyTunnels(ws);
 	});
 
 	ws.on('close', function() {
+		console.log('ws close');
 		clearTimeout(to);
 		closeAllMyTunnels(ws);
 	});

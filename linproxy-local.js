@@ -1,7 +1,7 @@
 "use strict"
 
-let socks = require('socksv5');
-let proxysession = require('./proxysession');
+const socks = require('socksv5');
+const proxysession = require('./proxysession');
 const tunnels = require('./tunnels')
 
 tunnels.setupWS();
@@ -16,8 +16,9 @@ let srv = socks.createServer(function(info, accept, deny) {
 	proxysession.create(info, sock);
 });
 
-srv.listen(1080, 'localhost', function() {
-	console.log('SOCKS server listening on port 1080');
+const port = 1080;
+srv.listen(port, 'localhost', function() {
+	console.log('SOCKS server listening on port:', port);
 });
 
 srv.useAuth(socks.auth.None());

@@ -152,6 +152,7 @@ function newWebsocket() {
 		return;
 	}
 
+	console.log('newWebsocket, try to create websocket connection');
 	wsCountInNew++;
 	const ws = new WebSocket(wsurl);
 	ws.tunnelsHub = {};
@@ -166,12 +167,14 @@ function newWebsocket() {
 	});
 
 	ws.on('error', function() {
-		wsCountInNew--;
-		deleteWS(ws);
-		closeAllMyTunnels(ws);
+		console.log('ws error');
+		//--error之后会触发close
+		// deleteWS(ws);
+		// closeAllMyTunnels(ws);
 	});
 
 	ws.on('close', function() {
+		console.log('ws close');
 		wsCountInNew--;
 		deleteWS(ws);
 		closeAllMyTunnels(ws);
@@ -193,7 +196,14 @@ tunnel.create = function(initData) {
 	return t;
 }
 
+let hasSetup = false;
 tunnel.setupWS = function() {
+	if (hasSetup) {
+		return;
+	}
+	
+	hasSetup = true;
+
 	for(let i = 0; i < maxWS; i++) {
 		newWebsocket();
 	}
