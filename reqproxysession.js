@@ -42,18 +42,27 @@ function proxysession(info, req, res, path) {
 		tunnel.onError = function() {
 			console.log('tunnel.onError ');
 			req.destroy();
-			res.end();
+			res.destroy();
 		};
 		
 		tunnel.onClose = function() {
 			console.log('tunnel.onClose ');
 			req.destroy();
-			res.end();
+			res.destroy();
 		};
-		
-		res.on('close', function() {
+
+		tunnel.onEnd = function() {
+			res.end();
+		}
+
+		req.on('aborted', function() {
 			console.log('res close');
 			tunnel.close();
+		});
+
+		req.on('end', function() {
+			console.log('req end');
+			tunnel.end();
 		});
 
 		req.on('close', function() {

@@ -47,6 +47,10 @@ function tunnel(ws, key, initData) {
 	sock.connect(dstPort, dstAddr, function() {
 		self.fsock = sock;
 		senddata(self);
+		
+		if (self.isEndedByPeer) {
+			sock.end();
+		}
 	});
 
 	sock.on('data', function(data) {
@@ -90,7 +94,11 @@ function tunnel(ws, key, initData) {
 	};
 
 	self.onEnd = function() {
-		sock.end();
+		if (self.fsock) {
+			sock.end();
+		} else {
+			self.isEndedByPeer = true
+		}
 	};
 
 	self.formatMsg = function(code, data) {

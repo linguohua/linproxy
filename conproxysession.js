@@ -32,13 +32,21 @@ function proxysession(info, sock, head) {
 		};
 
 		tunnel.onError = function() {
-			sock.end();
+			sock.destroy();
 		};
-		
+
 		tunnel.onClose = function() {
-			sock.end();
+			sock.destroy();
 		};
-		
+
+		tunnel.onEnd = function() {
+			sock.end();
+		}
+
+		sock.on('end', function() {
+			tunnel.end();
+		});
+
 		sock.on('close', function() {
 			tunnel.close();
 		});
