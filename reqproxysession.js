@@ -33,7 +33,7 @@ function proxysession(info, req, res, path) {
 		tunnel.send(Buffer.from(strHead));
 
 		tunnel.onMessage = function incoming(data) {
-			console.log('tunnel write data to res.socket');
+			console.log('tunnel write data to req.socket');
 			if (req.socket) {
 				req.socket.write(data);
 			}
@@ -52,7 +52,9 @@ function proxysession(info, req, res, path) {
 		};
 
 		tunnel.onEnd = function() {
-			res.end();
+			if (req.socket) {
+				req.socket.end();
+			}
 		}
 
 		req.on('aborted', function() {
@@ -60,8 +62,8 @@ function proxysession(info, req, res, path) {
 			tunnel.close();
 		});
 
-		req.on('end', function() {
-			console.log('req end');
+		req.socket.on('end', function() {
+			console.log('req socket end');
 			tunnel.end();
 		});
 
