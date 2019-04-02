@@ -33,20 +33,20 @@ function proxysession(info, req, res, path) {
 		tunnel.send(Buffer.from(strHead));
 
 		tunnel.onMessage = function incoming(data) {
-			console.log('tunnel write data to req.socket');
+			// console.log('tunnel write data to req.socket');
 			if (req.socket) {
 				req.socket.write(data);
 			}
 		};
 
 		tunnel.onError = function() {
-			console.log('tunnel.onError ');
+			//console.log('tunnel.onError ');
 			req.destroy();
 			res.destroy();
 		};
 		
 		tunnel.onClose = function() {
-			console.log('tunnel.onClose ');
+			//console.log('tunnel.onClose ');
 			req.destroy();
 			res.destroy();
 		};
@@ -63,17 +63,17 @@ function proxysession(info, req, res, path) {
 		});
 
 		req.socket.on('end', function() {
-			console.log('req socket end');
+			//console.log('req socket end');
 			tunnel.end();
 		});
 
 		req.on('close', function() {
-			console.log('req close');
+			//console.log('req close');
 			// tunnel.close();
 		});
 
 		req.on('data', function(data) {
-			console.log('write req data to ws');
+			// console.log('write req data to ws');
 			// pending data
 			tunnel.send(data);
 		});

@@ -47,12 +47,21 @@ function connectListener(req, cltSocket, head) {
 	conproxysession.create(info, cltSocket, head);
 }
 
-// Create an HTTP tunneling proxy
-const proxy = http.createServer();
+function httpproxy() {
+}
 
-// add listener
-proxy.on('request', requestListener);
-proxy.on('connect', connectListener);
+httpproxy.create = function(listen_port) {
+	// Create an HTTP tunneling proxy
+	const proxy = http.createServer();
 
-// now that proxy is running
-proxy.listen(listen_port, 'localhost');
+	// add listener
+	proxy.on('request', requestListener);
+	proxy.on('connect', connectListener);
+
+	// now that proxy is running
+	proxy.listen(listen_port, 'localhost');	
+	
+	console.log('HTTP Proxy server listening on port:', listen_port);
+}
+
+module.exports = httpproxy;
