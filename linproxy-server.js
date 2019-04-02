@@ -86,7 +86,7 @@ function tunnel(ws, key, initData) {
 	};
 
 	self.onClose = function() {
-		sock.close();
+		sock.destroy();
 	};
 
 	self.onEnd = function() {
