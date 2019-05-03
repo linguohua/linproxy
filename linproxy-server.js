@@ -44,6 +44,26 @@ function tunnel(ws, key, initData) {
 	
 	let sock = new net.Socket();
 
+	let wsSendCB = function() {
+		sock.wsPending = false
+		// 发送完成，继续读取
+		sock.resume()
+	}
+
+	let sockOnData = function(data) {
+		if (ws.readyState === WebSocket.OPEN) {
+			let message = self.formatMsg(2, data);
+			ws.send(message, nil , wsSendCB);
+
+			sock.wsPending = true
+			// 先阻塞sock,等ws发送完毕
+			sock.pause()
+		} else {
+			// 通道已经关闭了，需要把sock也关闭
+			sockOnData.destroy()
+		}
+	}
+
 	sock.connect(dstPort, dstAddr, function() {
 		self.fsock = sock;
 		senddata(self);
@@ -53,12 +73,7 @@ function tunnel(ws, key, initData) {
 		}
 	});
 
-	sock.on('data', function(data) {
-		if (ws.readyState === WebSocket.OPEN) {
-			let message = self.formatMsg(2, data);
-			ws.send(message);
-		}
-	});
+	sock.on('data', sockOnData);
 
 	sock.on('close', function() {
 		closeTunnel(ws, self, key);

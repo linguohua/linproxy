@@ -2,7 +2,7 @@
 
 const WebSocket = require('ws');
 //const wsurl = 'ws://localhost:9090/linproxy';
-const wsurl = 'wss://www.llwant.com/linproxy';
+const wsurl = '';
 /*
 	open:0
 	close:1
@@ -80,7 +80,7 @@ function processWebsocketMessage(ws, buf) {
 	
 	let t = ws.tunnelsHub[key]
 	if (t === undefined) {
-		console.log('can not found tunnel for key:', key);
+		console.log('can not found tunnel for key:', key, ', code:', code);
 		return;
 	}
 
