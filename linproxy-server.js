@@ -53,7 +53,7 @@ function tunnel(ws, key, initData) {
 	let sockOnData = function(data) {
 		if (ws.readyState === WebSocket.OPEN) {
 			let message = self.formatMsg(2, data);
-			ws.send(message, nil , wsSendCB);
+			ws.send(message, null , wsSendCB);
 
 			sock.wsPending = true
 			// 先阻塞sock,等ws发送完毕
